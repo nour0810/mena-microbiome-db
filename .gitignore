@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+env/
+
+# Data files (too large for git — host separately or use Git LFS)
+*.tsv
+*.csv
+data/
+out/
+cache/
+checkpoint/
+
+# Figures & tables output
+figures/
+tables/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
