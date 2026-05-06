@@ -29,7 +29,7 @@ Data were retrieved from **ENA**, **NCBI SRA**, and **PubMed**-linked BioProject
 
 The platform is deployed via **GitHub Pages** and requires no installation.
 
-**→ [Open the MENA Microbiome Platform](https://YOUR_USERNAME.github.io/mena-microbiome-db/)**
+**→ [Open the MENA Microbiome Platform](https://nour0810.github.io/mena-microbiome-db/)**
 
 Features:
 - Full-text & multi-filter search across all 60,126 runs
