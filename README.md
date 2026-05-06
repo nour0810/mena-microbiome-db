@@ -2,7 +2,7 @@
 
 > **The first region-scale, harmonized metagenomic catalog for the Middle East and North Africa.**
 
-[![GitHub Pages](https://img.shields.io/badge/Web%20Platform-Live-brightgreen)](https://YOUR_USERNAME.github.io/mena-microbiome-db/)
+[![GitHub Pages](https://img.shields.io/badge/Web%20Platform-Live-brightgreen)](https://nour0810.github.io/mena-microbiome-db/)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
