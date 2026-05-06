@@ -221,7 +221,7 @@ All records are publicly available under their original repository licenses. Thi
 
 If you use the MENA Microbiome Database or this platform in your research, please cite:
 
-> *[Citation will be added upon publication]*
+> *[Mathlouthi, N. E. H., Gdoura-Ben Amor, M., Belguith, I., Derouich, R., Ammar Keskes, L., & Gdoura, R. (2026). First survey of publicly available metagenomic sequencing data across 24 Middle Eastern and North African countries: The MENA Microbiome Database. bioRxiv. https://doi.org/10.64898/2026.05.01.722303]*
 
 ---
 
