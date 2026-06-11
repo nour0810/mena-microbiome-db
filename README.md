@@ -2,6 +2,7 @@
 
 > **The first region-scale, harmonized metagenomic catalog for the Middle East and North Africa.** 🌍
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20644639.svg)](https://doi.org/10.5281/zenodo.20644639)
 [![GitHub Pages](https://img.shields.io/badge/Web%20Platform-Live-brightgreen)](https://nour0810.github.io/mena-microbiome-db/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey)](LICENSE)

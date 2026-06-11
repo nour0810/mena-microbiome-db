@@ -66,4 +66,9 @@ If you use the MENA Microbiome Database, please cite:
   countries: The MENA Microbiome Database. bioRxiv preprint
   doi: 10.64898/2026.05.01.722303.
 
-And the Zenodo data deposit DOI (to be inserted upon publication).
+And the Zenodo data deposit:
+
+  Mathlouthi, N. E. H., Gdoura-Ben Amor, M., Belguith, I., Derouich, R.,
+  Ammar Keskes, L., & Gdoura, R. (2026). MENA Microbiome Database v1.1:
+  harmonised metagenomic catalog for 24 Middle Eastern and North African
+  countries [Data set]. Zenodo. https://doi.org/10.5281/zenodo.20644639
