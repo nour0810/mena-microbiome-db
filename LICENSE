@@ -1,0 +1,69 @@
+Creative Commons Attribution 4.0 International License (CC BY 4.0)
+
+Copyright (c) 2026 N. E. H. Mathlouthi, M. Gdoura-Ben Amor, I. Belguith,
+R. Derouich, L. Ammar Keskes, R. Gdoura — MENA Microbiome Database project.
+
+This work is licensed under the Creative Commons Attribution 4.0 International
+License. To view a copy of this license, visit:
+
+    https://creativecommons.org/licenses/by/4.0/
+
+Or send a letter to:
+
+    Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+
+================================================================================
+PLAIN-LANGUAGE SUMMARY (not a substitute for the legal text above)
+================================================================================
+
+You are free to:
+
+  - Share — copy and redistribute the material in any medium or format.
+  - Adapt — remix, transform, and build upon the material for any purpose, even
+    commercially.
+
+Under the following terms:
+
+  - Attribution — You must give appropriate credit, provide a link to the
+    license, and indicate if changes were made. You may do so in any reasonable
+    manner, but not in any way that suggests the licensor endorses you or your
+    use.
+
+  - No additional restrictions — You may not apply legal terms or technological
+    measures that legally restrict others from doing anything the license
+    permits.
+
+================================================================================
+SCOPE
+================================================================================
+
+This licence covers:
+
+  - All analysis scripts and code in this repository (scripts/, index.html,
+    requirements.txt, README.md, this LICENSE file).
+  - The derived metadata catalog distributed as `mena_metagenomics.tsv`,
+    `mena_database.{tsv,csv,xlsx,json}`, supplementary tables, harmonisation
+    rules, and the interactive web platform.
+  - Figures and tables produced from the harmonised catalog.
+
+This licence does NOT cover:
+
+  - Raw sequencing reads or original BioSample / BioProject metadata, which
+    remain under the access terms of their respective source repositories
+    (NCBI Sequence Read Archive, European Nucleotide Archive). Users
+    redistributing raw read data must comply with those repositories'
+    policies.
+
+================================================================================
+CITATION
+================================================================================
+
+If you use the MENA Microbiome Database, please cite:
+
+  Mathlouthi, N. E. H., Gdoura-Ben Amor, M., Belguith, I., Derouich, R.,
+  Ammar Keskes, L., & Gdoura, R. (2026). First survey of publicly available
+  metagenomic sequencing data across 24 Middle Eastern and North African
+  countries: The MENA Microbiome Database. bioRxiv preprint
+  doi: 10.64898/2026.05.01.722303.
+
+And the Zenodo data deposit DOI (to be inserted upon publication).

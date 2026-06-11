@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from collections import Counter, defaultdict
 
-DATA = "/home/claude/out/data/mena_metagenomics_clean.tsv"
-DATADIR = "/home/claude/out/data"
-TBLDIR = "/home/claude/out/tables"
-FIGDIR = "/home/claude/out/figures"
+DATA = "./out/data/mena_metagenomics_clean.tsv"
+DATADIR = "./out/data"
+TBLDIR = "./out/tables"
+FIGDIR = "./out/figures"
 
 mpl.rcParams.update({
     "font.family":"DejaVu Sans","font.size":10,

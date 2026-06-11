@@ -10,10 +10,10 @@ from collections import defaultdict
 import warnings
 warnings.filterwarnings("ignore")
 
-DATA = "/home/claude/out/data/mena_metagenomics_clean.tsv"
-DATADIR = "/home/claude/out/data"
-TBLDIR = "/home/claude/out/tables"
-FIGDIR = "/home/claude/out/figures"
+DATA = "./out/data/mena_metagenomics_clean.tsv"
+DATADIR = "./out/data"
+TBLDIR = "./out/tables"
+FIGDIR = "./out/figures"
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl

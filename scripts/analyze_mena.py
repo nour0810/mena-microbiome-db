@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from collections import Counter
 
-DATA = "/home/claude/mena microbiome database/mena_metagenomics.tsv"
-FIGDIR = "/home/claude/out/figures"
-TBLDIR = "/home/claude/out/tables"
-DATADIR = "/home/claude/out/data"
+DATA = "./data/mena_metagenomics.tsv"
+FIGDIR = "./out/figures"
+TBLDIR = "./out/tables"
+DATADIR = "./out/data"
 
 # ── publication style ────────────────────────────────────────────────────────
 mpl.rcParams.update({

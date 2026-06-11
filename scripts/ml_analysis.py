@@ -20,9 +20,9 @@ from sklearn.manifold import TSNE
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from scipy import stats as spstats
 
-DATA = "/home/claude/out/data/mena_metagenomics_clean.tsv"
-FIGDIR = "/home/claude/out/figures"
-DATADIR = "/home/claude/out/data"
+DATA = "./out/data/mena_metagenomics_clean.tsv"
+FIGDIR = "./out/figures"
+DATADIR = "./out/data"
 
 mpl.rcParams.update({
     "font.family":"DejaVu Sans","font.size":10,

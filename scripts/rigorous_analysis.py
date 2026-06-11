@@ -29,10 +29,10 @@ from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from scipy import stats as spstats
 import pymannkendall as mk
 
-DATA = "/home/claude/out/data/mena_metagenomics_clean.tsv"
-FIGDIR = "/home/claude/out/figures"
-DATADIR = "/home/claude/out/data"
-TBLDIR = "/home/claude/out/tables"
+DATA = "./out/data/mena_metagenomics_clean.tsv"
+FIGDIR = "./out/figures"
+DATADIR = "./out/data"
+TBLDIR = "./out/tables"
 
 mpl.rcParams.update({
     "font.family":"DejaVu Sans","font.size":10,
