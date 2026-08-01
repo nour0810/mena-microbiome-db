@@ -436,17 +436,32 @@ dendrogram(Z, labels=pa_k.index.tolist(), ax=axes[0], leaf_rotation=45,
 axes[0].set_ylabel("Jaccard distance")
 axes[0].set_title("Country clustering by metagenome-type composition (UPGMA)")
 
-# PCoA (classical MDS) on Jaccard
-from sklearn.manifold import MDS
-mds = MDS(n_components=2, dissimilarity="precomputed", random_state=42, normalized_stress="auto")
-coords = mds.fit_transform(squareform(j))
+# PCoA — classical principal coordinates analysis by eigendecomposition of the
+# double-centred Jaccard distance matrix (Gower 1966; Legendre & Legendre 2012).
+# NOTE: replaces an earlier sklearn.manifold.MDS call. MDS minimises a stress
+# criterion and produces no eigenvalue spectrum, so "variance explained" per axis
+# is undefined for it; classical PCoA is what the manuscript reports (Methods 2.7).
+D_j = squareform(j)
+n_j = D_j.shape[0]
+J_c = np.eye(n_j) - np.ones((n_j, n_j)) / n_j
+B_j = -0.5 * J_c @ (D_j ** 2) @ J_c                    # Gower double-centring
+evals, evecs = np.linalg.eigh(B_j)
+_ord = np.argsort(evals)[::-1]
+evals, evecs = evals[_ord], evecs[:, _ord]
+_pos = evals[evals > 0]
+var_explained = evals / _pos.sum()                     # of positive-eigenvalue variance
+coords = evecs[:, :2] * np.sqrt(np.abs(evals[:2]))
+pc1_pct, pc2_pct = 100 * var_explained[0], 100 * var_explained[1]
+print(f"  classical PCoA: PC1={pc1_pct:.2f}%, PC2={pc2_pct:.2f}% "
+      f"(PC1+PC2={pc1_pct + pc2_pct:.1f}%)")
 for i, c in enumerate(pa_k.index):
     axes[1].scatter(coords[i,0], coords[i,1], s=80,
                     c=PAL[i%len(PAL)], edgecolors="black", linewidth=0.5)
     axes[1].annotate(c, (coords[i,0], coords[i,1]), fontsize=8,
                      xytext=(4,4), textcoords="offset points")
-axes[1].set_xlabel("PCo1"); axes[1].set_ylabel("PCo2")
-axes[1].set_title(f"PCoA on Jaccard distance (stress={mds.stress_:.3f})")
+axes[1].set_xlabel(f"PCo1 ({pc1_pct:.1f}%)"); axes[1].set_ylabel(f"PCo2 ({pc2_pct:.1f}%)")
+axes[1].set_title("Classical PCoA on Jaccard distance "
+                  f"(PC1+PC2 = {pc1_pct + pc2_pct:.1f}% of variance)")
 axes[1].axhline(0, color="gray", lw=0.5); axes[1].axvline(0, color="gray", lw=0.5)
 plt.tight_layout()
 save(fig, "E03_beta_diversity")
@@ -458,7 +473,10 @@ OUT["beta_diversity"] = {
     "jaccard_max": float(np.max(j)),
     "pcoa_coords": [{"country":c, "x":round(float(coords[i,0]),3), "y":round(float(coords[i,1]),3)}
                     for i,c in enumerate(pa_k.index)],
-    "pcoa_stress": float(round(mds.stress_, 4)),
+    "pcoa_method": "classical PCoA (eigendecomposition of double-centred Jaccard matrix)",
+    "pcoa_pc1_pct_variance": round(float(pc1_pct), 2),
+    "pcoa_pc2_pct_variance": round(float(pc2_pct), 2),
+    "pcoa_eigenvalues": [round(float(v), 6) for v in evals[:5]],
     "linkage_matrix": Z.tolist(),
     "linkage_labels": pa_k.index.tolist(),
 }
@@ -519,6 +537,9 @@ ck = bp_country.value_counts()
 keep_countries = ck[ck >= 3].index.tolist()
 bp_mat = bp_mat.loc[bp_country.isin(keep_countries)]
 bp_country = bp_country.loc[bp_country.isin(keep_countries)]
+# retain the uncapped matrices so the subsample-stability check below can draw
+# independent subsamples rather than re-using the single capped draw
+bp_mat_full, bp_country_full = bp_mat, bp_country
 # subsample to ≤500 BPs for compute
 if len(bp_mat) > 500:
     rng_pm = np.random.RandomState(42)
@@ -540,9 +561,68 @@ def bray_curtis(M):
     return D
 print("  computing Bray-Curtis...")
 D_bc = bray_curtis(bp_mat.values)
-print("  running PERMANOVA (999 permutations)...")
-F_obs, R2, p_perm = permanova(D_bc, bp_country.values, n_perm=999)
-print(f"  F={F_obs:.2f}, R²={R2:.3f}, p={p_perm:.4f}")
+
+# PERMANOVA is computed with scikit-bio and cross-checked against the custom
+# Anderson (2001) pseudo-F routine defined above; every PERMANOVA is accompanied
+# by a PERMDISP test of multivariate dispersion homogeneity, so that a significant
+# result can be attributed to a location (centroid) effect rather than to unequal
+# within-group spread (Methods 2.7 and 2.11).
+from skbio import DistanceMatrix
+from skbio.stats.distance import permanova as skbio_permanova, permdisp as skbio_permdisp
+
+_ids   = [str(i) for i in range(len(bp_mat))]
+_dm    = DistanceMatrix(D_bc, ids=_ids)
+_grp   = list(bp_country.values)   # skbio takes an ordered label vector
+
+print("  running PERMANOVA (scikit-bio, 999 permutations)...")
+_res   = skbio_permanova(_dm, _grp, permutations=999)
+F_obs, p_perm = float(_res["test statistic"]), float(_res["p-value"])
+
+# scikit-bio does not return R², so take it from the Anderson-2001 routine, which
+# also serves as an independent check on the pseudo-F statistic
+F_chk, R2, p_chk = permanova(D_bc, bp_country.values, n_perm=999)
+print(f"  scikit-bio  F={F_obs:.3f}  p={p_perm:.4f}")
+print(f"  Anderson-01 F={F_chk:.3f}  p={p_chk:.4f}  R²={R2:.4f}")
+assert abs(F_obs - F_chk) < 0.02 * max(F_obs, 1.0), \
+    f"PERMANOVA implementations disagree: skbio {F_obs:.4f} vs Anderson {F_chk:.4f}"
+
+# PERMDISP is run on ALL qualifying BioProjects, not the capped subsample: the cap
+# exists only for PERMANOVA compute cost, and the dispersion result is sensitive to
+# it (p ranges ~0.13 at a 400-cap to ~0.013 uncapped). Reporting the uncapped value
+# avoids conditioning an inferential claim on an arbitrary computational choice.
+print("  running PERMDISP on all qualifying BioProjects (999 permutations)...")
+_D_full   = bray_curtis(bp_mat_full.values)
+_dm_full  = DistanceMatrix(_D_full, ids=[str(i) for i in range(len(bp_mat_full))])
+# test='centroid' = Anderson's classical PERMDISP; the default geometric-median
+# variant fails on duplicate composition rows, which this matrix contains
+_disp  = skbio_permdisp(_dm_full, list(bp_country_full.values),
+                        permutations=999, test='centroid')
+disp_F, disp_p = float(_disp["test statistic"]), float(_disp["p-value"])
+_homog = disp_p >= 0.05
+print(f"  PERMDISP (n={len(bp_mat_full)}) F={disp_F:.2f} p={disp_p:.3f} -> "
+      f"{'homogeneous' if _homog else 'HETEROGENEOUS'} dispersion")
+
+# Subsample stability — the 400-500 BioProject cap is imposed for compute, not for
+# statistical reasons, so R² and p are re-estimated across 20 independent random
+# subsamples and reported as a range rather than as fixed effect sizes (Results 3.12).
+print("  running subsample-stability check (20 independent subsamples)...")
+_stab = []
+for _s in range(20):
+    _rng_s = np.random.RandomState(1000 + _s)
+    if len(bp_mat_full) > 500:
+        _i = _rng_s.choice(len(bp_mat_full), 500, replace=False)
+        _m, _c = bp_mat_full.iloc[_i], bp_country_full.iloc[_i]
+    else:
+        _m, _c = bp_mat_full, bp_country_full
+    _F, _R2, _p = permanova(bray_curtis(_m.values), _c.values,
+                            n_perm=199, rng=np.random.RandomState(2000 + _s))
+    _stab.append({"subsample": _s + 1, "n_bioprojects": int(len(_m)),
+                  "F": round(float(_F), 3), "R2_pct": round(100 * float(_R2), 2),
+                  "p_value": round(float(_p), 4)})
+_r2s = [d["R2_pct"] for d in _stab]; _ps = [d["p_value"] for d in _stab]
+print(f"  R² across 20 subsamples: {min(_r2s):.1f}%-{max(_r2s):.1f}% "
+      f"(mean {np.mean(_r2s):.1f}%), max p={max(_ps):.4f}")
+xlsx(pd.DataFrame(_stab), "T3_permanova_subsample_stability")
 
 OUT["permanova"] = {
     "n_bioprojects": int(len(bp_mat)),
@@ -552,6 +632,25 @@ OUT["permanova"] = {
     "p_value": round(float(p_perm), 5),
     "n_permutations": 999,
     "distance_metric": "Bray-Curtis",
+    "implementation": "scikit-bio permanova; cross-checked against custom Anderson-2001 pseudo-F",
+    "anderson2001_F": round(float(F_chk), 3),
+    "anderson2001_p": round(float(p_chk), 5),
+    "permdisp_F": round(float(disp_F), 3),
+    "permdisp_p": round(float(disp_p), 5),
+    "permdisp_homogeneous": bool(_homog),
+    "permdisp_n_bioprojects": int(len(bp_mat_full)),
+    "permdisp_note": "computed on all qualifying BioProjects, uncapped",
+    "permdisp_interpretation": ("dispersions homogeneous — significant PERMANOVA reflects a "
+                                "location (centroid) effect" if _homog else
+                                "dispersions heterogeneous — interpret PERMANOVA with caution"),
+    "subsample_stability": {
+        "n_subsamples": 20,
+        "R2_pct_min": round(float(min(_r2s)), 2),
+        "R2_pct_max": round(float(max(_r2s)), 2),
+        "R2_pct_mean": round(float(np.mean(_r2s)), 2),
+        "p_value_max": round(float(max(_ps)), 5),
+        "per_subsample": _stab,
+    },
     "interpretation": "country explains a significant fraction of variance in metagenome-type composition" if p_perm<0.05 else "no significant country effect",
 }
 
