@@ -7,9 +7,22 @@ Results 3.1.
 
 Two things are made reproducible here:
 
-  1. `draw_stratified_sample()` regenerates the exact evaluation set from the
-     released corpus, given the same seed. Anyone can therefore obtain the same
-     604 runs that were manually reviewed.
+  1. `draw_stratified_sample()` draws a reproducible stratified sample from the
+     released corpus, given the same seed.
+
+     It does NOT reconstruct the original 604-run evaluation set, and must not
+     be described as doing so. That set spanned both classifier outcomes: its
+     single-organism arm (284 true negatives + 10 false negatives = 294 records)
+     was drawn from the classifier's other two output files,
+     `mena_single_organism.tsv` and `mena_ambiguous.tsv`, which are not part of
+     the released deposit. The released corpus contains only records the
+     classifier retained, so a sample drawn here sits almost entirely in the
+     positive arm.
+
+     A re-annotation of such a sample therefore supports an independent estimate
+     of PRECISION — the false-positive rate among retained records, which bounds
+     contamination of the database — but not of recall or specificity, since it
+     contains too few true negatives to estimate them.
 
   2. `evaluate()` computes every reported statistic — precision, recall, F1,
      specificity, accuracy, Cohen's kappa and Wilson 95% confidence intervals —
@@ -28,7 +41,7 @@ Limitations. To evaluate a new annotation, pass the labelled table to
 Usage
 -----
     python scripts/classifier_validation.py                  # verify published values
-    python scripts/classifier_validation.py --sample         # regenerate the n=604 set
+    python scripts/classifier_validation.py --sample         # draw a fresh stratified sample
     python scripts/classifier_validation.py --labels FILE    # score a labelled table
 """
 import argparse
@@ -119,11 +132,15 @@ def evaluate_from_table(path, pred_col="predicted_metagenomic",
 
 
 def draw_stratified_sample(df, n=N_SAMPLE, seed=SEED):
-    """Draw the evaluation set, stratified by broad_category.
+    """Draw a stratified sample from the released corpus, by broad_category.
 
     Allocation is proportional to category size, with at least one run per
     category so that small categories (Viral, Fungal) are represented at all.
     Deterministic for a given seed and corpus.
+
+    Note this samples the RETAINED corpus only, so the draw is almost entirely
+    classifier-positive and cannot reproduce the original evaluation set's
+    single-organism arm. See the module docstring.
     """
     rng = np.random.RandomState(seed)
     strata = df["broad_category"].fillna("Unclassified")
@@ -186,7 +203,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--sample", action="store_true",
-                    help="regenerate the stratified evaluation set and write it to TSV")
+                    help="draw a stratified sample from the released corpus and write it to TSV")
     ap.add_argument("--labels", metavar="FILE",
                     help="score a labelled table instead of the published matrix")
     ap.add_argument("--data", default=DATA, help=f"corpus TSV (default: {DATA})")
@@ -215,6 +232,9 @@ def main():
         print(f"wrote {len(sample)} runs to {args.out}")
         print("Add a boolean 'reference_metagenomic' column by manual review, "
               "then score with --labels.")
+        print("NOTE: this sample is drawn from the retained corpus only. It "
+              "supports an independent precision estimate, not recall or "
+              "specificity (too few true negatives).")
         return
 
     verify_published()
