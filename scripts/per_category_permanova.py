@@ -10,6 +10,21 @@ from collections import defaultdict
 import warnings
 warnings.filterwarnings("ignore")
 
+from skbio import DistanceMatrix
+from skbio.stats.distance import permanova as skbio_permanova, permdisp as skbio_permdisp
+
+
+def benjamini_hochberg(pvals):
+    """Benjamini-Hochberg adjusted p-values (step-up), preserving input order."""
+    p = np.asarray(pvals, dtype=float)
+    m = len(p)
+    order = np.argsort(p)
+    ranked = p[order] * m / (np.arange(m) + 1)
+    ranked = np.minimum.accumulate(ranked[::-1])[::-1]   # enforce monotonicity
+    out = np.empty(m)
+    out[order] = np.minimum(ranked, 1.0)
+    return out
+
 DATA = "./out/data/mena_metagenomics_clean.tsv"
 DATADIR = "./out/data"
 TBLDIR = "./out/tables"
@@ -127,9 +142,40 @@ for cat in CATEGORIES:
     if res is None:
         print("PERMANOVA failed")
         continue
+
+    # PERMANOVA is computed with scikit-bio and cross-checked against the custom
+    # Anderson (2001) routine above; each test is accompanied by PERMDISP, so a
+    # significant result can be attributed to a centroid shift rather than to
+    # unequal within-group dispersion (Methods 2.7 and 2.11).
+    _ids = [str(i) for i in range(len(bp_mat))]
+    _dm = DistanceMatrix(D, ids=_ids)
+    _grp = list(bp_country.values)
+    _sk = skbio_permanova(_dm, _grp, permutations=999)
+    res["F_skbio"] = float(_sk["test statistic"])
+    res["p_skbio"] = float(_sk["p-value"])
+    if abs(res["F_skbio"] - res["F"]) > 0.02 * max(res["F_skbio"], 1.0):
+        raise AssertionError(f"{cat}: PERMANOVA implementations disagree "
+                             f"(skbio {res['F_skbio']:.4f} vs Anderson {res['F']:.4f})")
+
+    # test='centroid' = Anderson's classical PERMDISP; the default geometric-median
+    # variant fails on duplicate composition rows, which these matrices contain
+    _disp = skbio_permdisp(_dm, _grp, permutations=999, test='centroid')
+    res["permdisp_F"] = float(_disp["test statistic"])
+    res["permdisp_p"] = float(_disp["p-value"])
+    res["dispersion_homogeneous"] = bool(res["permdisp_p"] >= 0.05)
+
+    # R2 under the null is (k-1)/(n-1); subtracting it prevents small categories
+    # with many groups from appearing to show large effects
+    k, n = res["n_groups"], res["n_samples"]
+    res["E_R2_null"] = (k - 1) / (n - 1) if n > 1 else float("nan")
+    res["R2_adjusted"] = ((res["R2"] - res["E_R2_null"]) / (1 - res["E_R2_null"])
+                          if res["E_R2_null"] < 1 else float("nan"))
+
     res["category"] = cat
     res["n_bps_per_country"] = bp_country.value_counts().to_dict()
-    print(f"F={res['F']:.2f}  R²={res['R2']:.3f}  p={res['p']:.4f}")
+    print(f"F={res['F']:.2f}  R²={res['R2']:.3f}  p={res['p']:.4f}  "
+          f"PERMDISP p={res['permdisp_p']:.3f}"
+          f"{'' if res['dispersion_homogeneous'] else '  (heterogeneous)'}")
     results[cat] = res
 
 # Save
@@ -145,10 +191,20 @@ summary = pd.DataFrame([
         "F_statistic": round(r["F"],3),
         "R_squared": round(r["R2"],4),
         "R_squared_pct": round(r["R2"]*100,2),
+        "E_R2_null_pct": round(r["E_R2_null"]*100,2),
+        "R2_adjusted_pct": round(r["R2_adjusted"]*100,2),
         "p_value": round(r["p"],5),
         "significant": "yes" if r["p"]<0.05 else "no",
+        "PERMDISP_F": round(r["permdisp_F"],2),
+        "PERMDISP_p": round(r["permdisp_p"],3),
+        "dispersion_homogeneous": "yes" if r["dispersion_homogeneous"] else "no",
     } for r in results.values()
 ]).sort_values("R_squared", ascending=False)
+
+# Seven tests are run on the same corpus, so control the false-discovery rate
+# across them rather than reading each nominal p in isolation.
+summary["p_BH_FDR"] = np.round(benjamini_hochberg(summary["p_value"].values), 4)
+summary["significant_after_FDR"] = np.where(summary["p_BH_FDR"] < 0.05, "yes", "no")
 summary.to_excel(f"{TBLDIR}/T3b_per_category_permanova.xlsx", index=False)
 
 # Comparison plot: R² and -log10(p) per category
