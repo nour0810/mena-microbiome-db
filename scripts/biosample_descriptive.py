@@ -172,7 +172,11 @@ df["biosample_type"] = df.apply(assign_biosample_type, axis=1)
 # 3. Top biosample types overall
 # 4. Coverage: % of runs successfully assigned to a specific type
 
-assigned = df["biosample_type"].notna() & (~df["biosample_type"].isin(["Unspecified","Other (within category)","Habitat (general)"]))
+# A run counts as specifically assigned if it carries a label other than the two
+# catch-alls, matching the definition reported in the manuscript (Methods 2.5,
+# Results 3.7): 60,126 - 7,690 "Other (within category)" - 8,907 "Unspecified"
+# = 43,529 runs (72.40%). "Habitat (general)" is a specific type and is counted.
+assigned = df["biosample_type"].notna() & (~df["biosample_type"].isin(["Unspecified","Other (within category)"]))
 coverage = 100 * assigned.sum() / len(df)
 print(f"  Assignment coverage: {coverage:.1f}% ({assigned.sum():,} of {len(df):,} runs assigned a specific biosample type)")
 
