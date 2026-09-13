@@ -21,8 +21,8 @@ The **MENA Microbiome Database** consolidates all publicly available metagenomic
 | 🧬 Unique BioSamples | **49,308** |
 | 📁 BioProjects | **1,397** |
 | 🌍 Countries covered | **24** |
-| 📅 Data span | **2008 – 2026** |
-| 🧬 Primary sequencing platform | Illumina (87.2%) |
+| 📅 Data span | **2013 – 2026** |
+| 🧬 Primary sequencing platform | Illumina (88.4%) |
 
 Data were retrieved from **ENA**, **NCBI SRA**, and **PubMed**-linked BioProjects, harmonized to a common schema, and enriched with BioSample / experiment / study XML attributes. Community metagenomics runs are algorithmically separated from single-organism genomics using a transparent, rule-based classifier.
 
@@ -39,7 +39,7 @@ Features:
 - 🗺️ Per-country, per-category, and per-biome breakdown
 - 📊 Ecology & diversity analytics (Shannon, Simpson, PCoA, PERMANOVA)
 - 🗺️ Geospatial sampling map with Moran's I spatial clustering
-- 🧠 NLP-derived thematic cluster explorer (9 clusters, silhouette = 0.59)
+- 🧠 NLP-derived thematic cluster explorer (5 clusters, silhouette = 0.40)
 - 📤 Export to TSV / CSV / XLSX / JSON
 
 > **GitHub Pages setup:** In your repository settings go to **Settings → Pages**, set the source branch to `main` and the folder to `/ (root)`. The `index.html` file is the platform entry point.
@@ -159,7 +159,7 @@ Tests whether the country effect on metagenome-type composition persists within 
 python scripts/per_category_permanova.py
 ```
 
-Key result: country explains significant variance in Plant (R²=9.4%), Animal (R²=7.9%), and Environment (R²=7.0%) — but not Human (p=0.225).
+Key result: country explains significant variance in Animal (R²=11.6%) and Environment (R²=6.3%), both surviving Benjamini-Hochberg correction across the six testable categories, and suggestively in Plant (R²=8.3%, q=0.054), but not in Human (p=0.183). Clinical is not testable in v1.2.
 
 ---
 
@@ -169,7 +169,7 @@ The main analysis engine, covering:
 - **Ecological diversity:** rarefaction, Shannon/Simpson indices, Jaccard distances, PCoA
 - **Inferential statistics:** PERMANOVA, IndVal species indicator values, chi-square residuals, Mann-Kendall temporal trends
 - **Geospatial:** sampling density maps, Moran's I spatial autocorrelation
-- **NLP:** per-country TF-IDF signatures, K-Means thematic clustering of study titles (9 clusters, silhouette=0.59)
+- **NLP:** per-country TF-IDF signatures, K-Means thematic clustering of study titles (5 clusters, silhouette=0.40)
 
 ```bash
 python scripts/rigorous_analysis.py
