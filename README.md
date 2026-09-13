@@ -7,6 +7,8 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey)](LICENSE)
 
+> **Current release: v1.2.** This supersedes v1.1 (60,126 runs). The corpus was rebuilt in response to peer review: 4,423 runs in studies an exhaustive BioProject-level census judged not to be community metagenomes were removed, and 791 community marker-gene runs recovered from the classifier's rejected arm were added. The full analysis pipeline, with a v1.1 control run, is in [`pipeline_scripts/`](pipeline_scripts/).
+
 ---
 
 ## 📋 Overview
@@ -15,9 +17,9 @@ The **MENA Microbiome Database** consolidates all publicly available metagenomic
 
 | Metric | Value |
 |--------|-------|
-| 🧪 Metagenomic runs | **60,126** |
-| 🧬 Unique BioSamples | **51,365** |
-| 📁 BioProjects | **2,373** |
+| 🧪 Metagenomic runs | **56,494** |
+| 🧬 Unique BioSamples | **49,308** |
+| 📁 BioProjects | **1,397** |
 | 🌍 Countries covered | **24** |
 | 📅 Data span | **2008 – 2026** |
 | 🧬 Primary sequencing platform | Illumina (87.2%) |
@@ -33,7 +35,7 @@ The platform is deployed via **GitHub Pages** and requires no installation.
 **→ [Open the MENA Microbiome Platform](https://nour0810.github.io/mena-microbiome-db/)**
 
 Features:
-- 🔍 Full-text & multi-filter search across all 60,126 runs
+- 🔍 Full-text & multi-filter search across all 56,494 runs
 - 🗺️ Per-country, per-category, and per-biome breakdown
 - 📊 Ecology & diversity analytics (Shannon, Simpson, PCoA, PERMANOVA)
 - 🗺️ Geospatial sampling map with Moran's I spatial clustering
