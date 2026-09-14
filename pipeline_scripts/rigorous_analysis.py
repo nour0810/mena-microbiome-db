@@ -595,14 +595,17 @@ assert abs(F_obs - F_chk) < 0.02 * max(F_obs, 1.0), \
 # exists only for PERMANOVA compute cost, and the dispersion result is sensitive to
 # it. Reporting the uncapped value avoids conditioning an inferential claim on an
 # arbitrary computational choice.
-print("  running PERMDISP on all qualifying BioProjects (999 permutations)...")
+print("  running PERMDISP on all qualifying BioProjects (9,999 permutations)...")
 _D_full   = bray_curtis(bp_mat_full.values)
 _dm_full  = DistanceMatrix(_D_full, ids=[str(i) for i in range(len(bp_mat_full))])
 # test='centroid' = Anderson's classical PERMDISP; the default geometric-median
 # variant fails on duplicate composition rows, which this matrix contains
 np.random.seed(42)
+# 9,999 permutations here, matching the per-category family: the pooled dispersion
+# p-value sits near 0.05, where the Monte Carlo error at 999 permutations (~0.007)
+# is large relative to the distance from the threshold.
 _disp  = skbio_permdisp(_dm_full, list(bp_country_full.values),
-                        permutations=999, test='centroid')
+                        permutations=9999, test='centroid')
 disp_F, disp_p = float(_disp["test statistic"]), float(_disp["p-value"])
 _homog = disp_p >= 0.05
 print(f"  PERMDISP (n={len(bp_mat_full)}) F={disp_F:.2f} p={disp_p:.3f} -> "

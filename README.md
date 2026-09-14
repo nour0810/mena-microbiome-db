@@ -54,7 +54,14 @@ mena-microbiome-db/
 ├── README.md
 ├── requirements.txt                  # 📦 Python dependencies for all scripts
 ├── .gitignore
-└── scripts/
+├── pipeline_scripts/                 # ✅ v1.2 pipeline — authoritative for every published value
+│   ├── README.md                     #    how to run it, and the v1.1 control run
+│   ├── 01_build_corpus.py            #    builds corpus_v11.tsv and corpus_v12.tsv
+│   ├── 04_run_pipeline.py            #    runs rigorous_analysis.py on either corpus
+│   ├── 05_percategory_pcoa.py        #    per-category PERMANOVA / PERMDISP, classical PCoA
+│   ├── rigorous_analysis.py          #    main analytical suite
+│   └── ...                           #    figures, supplementary tables, stability checks
+└── scripts/                          # 🗄️ v1.1-era acquisition and analysis code (see note below)
     ├── 01_fetch_mena_v5_patched.py   # 📥 Step 1 — Data acquisition from ENA & NCBI SRA
     ├── split_genomics_metagenomics.py # 🔍 Step 2 — Classify metagenomics vs single-organism
     ├── analyze_mena.py               # 📊 Step 3 — Core downstream analysis & figures
@@ -102,6 +109,24 @@ ml_analysis.py  ─────────────────────�
 ---
 
 ## 🚀 Scripts — Quick Reference
+
+> **Which directory should I use?**
+>
+> `scripts/` is the **v1.1-era** acquisition and analysis code. It is kept here because it documents
+> how the corpus was originally retrieved and classified, and `01_fetch_mena_v5_patched.py` and
+> `split_genomics_metagenomics.py` remain the acquisition and classification steps of record.
+>
+> It is **not** the code behind the published v1.2 numbers. Use
+> [`pipeline_scripts/`](pipeline_scripts/) for those: it is the bundle released as Supplementary
+> File S1, it rebuilds the v1.2 corpus from the v1.1 release, and it ships a v1.1 control run that
+> must reproduce the published v1.1 values before any v1.2 output is used.
+>
+> Two differences matter if you run the `scripts/` copies of the statistical steps. They predate the
+> reproducibility fixes described in Methods 2.7 and 2.11: `rigorous_analysis.py` does not seed the
+> global NumPy generator before the scikit-bio `permanova`/`permdisp` calls, and both
+> `rigorous_analysis.py` and `per_category_permanova.py` run PERMDISP at 999 permutations rather
+> than the 9,999 used for the reported values. Their permutation p-values will therefore differ from
+> the manuscript. The `pipeline_scripts/` versions carry both fixes.
 
 ### `01_fetch_mena_v5_patched.py` — 📥 Data Acquisition
 Queries ENA Portal API and NCBI SRA (via Biopython Entrez) for all metagenomic records from 24 MENA countries. Supports checkpoint/resume for long runs.

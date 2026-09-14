@@ -1,6 +1,21 @@
 """
-MENA Microbiome — RIGOROUS ANALYTICAL SUITE
+MENA Microbiome - RIGOROUS ANALYTICAL SUITE
 ============================================
+
+v1.1-ERA CODE. NOT THE SOURCE OF THE PUBLISHED v1.2 VALUES.
+-----------------------------------------------------------
+The authoritative version is pipeline_scripts/rigorous_analysis.py, released as
+Supplementary File S1 and driven by pipeline_scripts/04_run_pipeline.py. This copy
+predates two reproducibility fixes described in Methods 2.7 and 2.11:
+
+  * it does not call np.random.seed(42) before the scikit-bio permanova and permdisp
+    calls, which draw from the global NumPy RNG and accept no seed argument, so its
+    permutation p-values are re-drawn on every run;
+  * it runs the all-category PERMDISP at 999 permutations rather than the 9,999 used
+    for the reported value.
+
+Its permutation p-values will therefore not match the manuscript. Kept for provenance.
+
 Replaces the previous ML/DL/AI work with publication-quality analyses
 defensible for Scientific Data / GigaScience / NAR Database.
 

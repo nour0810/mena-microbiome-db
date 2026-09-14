@@ -73,10 +73,15 @@ this bundle and they do not agree, so it is worth being explicit about which one
 value comes from.
 
 - `rigorous_analysis.py` and `05_percategory_pcoa.py` call `skbio.stats.distance.permdisp`.
-  This is the source of every PERMDISP value reported in the manuscript. On scikit-bio 0.7.3 it
-  reproduces the published F statistics exactly: F = 2.63 on the 1,145 qualifying BioProjects of
-  v1.1 and F = 2.13 on the 1,124 of v1.2. There is no version incompatibility here and no pin is
-  required.
+  This is the source of every PERMDISP value reported in the manuscript except the per-category
+  Human and Environment tests: there the scikit-bio routine raises `ZeroDivisionError` on the
+  within-group median and `05_percategory_pcoa.py` falls back to its local Anderson (2006)
+  routine, `permdisp_anderson()`, at the same 9,999 permutations and the same seed. Both of those
+  fallback results are non-significant. The routine actually used for each test is recorded in
+  the `permdisp_src` column of Supplementary Table S3, and Methods 2.7 states the same. On
+  scikit-bio 0.7.3 the scikit-bio path reproduces the published F statistics exactly: F = 2.63 on
+  the 1,145 qualifying BioProjects of v1.1 and F = 2.13 on the 1,124 of v1.2. There is no version
+  incompatibility here and no pin is required.
 - `14_permdisp_chao1_stability.py` does **not** use scikit-bio. It contains a local
   reimplementation, `permdisp_centroid()`, following Anderson (2006) in PCoA space, which returns
   F = 5.70 on the same v1.1 data. That disagreement is between the reimplementation and

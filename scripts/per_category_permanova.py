@@ -1,8 +1,18 @@
 """
-Per-category PERMANOVA — confounding by sample type removed.
+Per-category PERMANOVA - confounding by sample type removed.
 Runs PERMANOVA within each broad_category to test whether country effect
 on metagenome-type composition is stronger when sample-type confounding
 is eliminated.
+
+v1.1-ERA CODE. NOT THE SOURCE OF THE PUBLISHED v1.2 VALUES.
+-----------------------------------------------------------
+The authoritative version is pipeline_scripts/05_percategory_pcoa.py, released as
+Supplementary File S1. This copy runs PERMDISP at 999 permutations rather than the
+9,999 used for the reported per-category family (Methods 2.7), so its permutation
+p-values and Benjamini-Hochberg q-values will not match the manuscript. It also
+predates the Anderson (2006) fallback that the v1.2 script uses where scikit-bio's
+permdisp raises ZeroDivisionError on the within-group median (Human, Environment).
+Kept for provenance.
 """
 import os, json, math
 import pandas as pd, numpy as np
